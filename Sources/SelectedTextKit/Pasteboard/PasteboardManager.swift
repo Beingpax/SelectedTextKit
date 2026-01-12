@@ -200,7 +200,7 @@ public final class PasteboardManager: NSObject {
     public func pollTask(
         _ task: @escaping () async -> Bool,
         every interval: TimeInterval = 0.005,
-        timeout: TimeInterval = 0.2
+        timeout: TimeInterval = 0.3
     ) async -> Bool {
         let startTime = Date()
         while Date().timeIntervalSince(startTime) < timeout {
@@ -211,7 +211,7 @@ public final class PasteboardManager: NSObject {
             }
             await Task.sleep(seconds: interval)
         }
-        logInfo("pollTask timeout")
+        logInfo("pollTask timeout: \(timeout) seconds")
         return false
     }
 
