@@ -42,6 +42,7 @@ public final class PasteboardManager: NSObject {
 
         let pasteboard = NSPasteboard.general
         let initialChangeCount = pasteboard.changeCount
+        var newContent: String?
 
         let executeAction = { [self] in
             do {
@@ -56,8 +57,8 @@ public final class PasteboardManager: NSObject {
                 // Check if the pasteboard content has changed
                 if pasteboard.changeCount != initialChangeCount {
                     // !!!: The pasteboard content may be nil or other strange content(such as old content) if the pasteboard is changing by other applications in the same time, like PopClip.
-                    let newContent = pasteboard.string
-                    if !newContent.isEmpty {
+                    newContent = pasteboard.string
+                    if let newContent, !newContent.isEmpty {
                         logInfo("New Pasteboard content: \(newContent)")
                         return true
                     }
@@ -76,7 +77,7 @@ public final class PasteboardManager: NSObject {
             await executeAction()
         }
 
-        return nil
+        return newContent
     }
 
     // MARK: - Paste Methods
