@@ -205,6 +205,8 @@ public final class PasteboardManager: NSObject {
         let startTime = Date()
         while Date().timeIntervalSince(startTime) < timeout {
             if await task() {
+                let elapsedTime = Date().timeIntervalSince(startTime)
+                logInfo("pollTask succeeded, time taken: \(String(format: "%.4f", elapsedTime)) seconds")
                 return true
             }
             await Task.sleep(seconds: interval)
