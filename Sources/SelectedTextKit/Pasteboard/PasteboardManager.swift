@@ -58,7 +58,7 @@ public final class PasteboardManager: NSObject {
                 if pasteboard.changeCount != initialChangeCount {
                     // !!!: The pasteboard content may be nil or other strange content(such as old content) if the pasteboard is changing by other applications in the same time, like PopClip.
                     newContent = pasteboard.string
-                    if let newContent {
+                    if let newContent, !newContent.isEmpty {
                         logInfo("New Pasteboard content: \(newContent)")
                         return true
                     }
@@ -200,16 +200,18 @@ public final class PasteboardManager: NSObject {
     public func pollTask(
         _ task: @escaping () async -> Bool,
         every interval: TimeInterval = 0.005,
-        timeout: TimeInterval = 0.1
+        timeout: TimeInterval = 0.4
     ) async -> Bool {
         let startTime = Date()
         while Date().timeIntervalSince(startTime) < timeout {
             if await task() {
+                let elapsedTime = Date().timeIntervalSince(startTime)
+                logInfo("pollTask succeeded, time taken: \(String(format: "%.4f", elapsedTime)) seconds")
                 return true
             }
             await Task.sleep(seconds: interval)
         }
-        logInfo("pollTask timeout")
+        logInfo("pollTask timeout: \(timeout) seconds")
         return false
     }
 
