@@ -27,11 +27,11 @@ public var logTimestamp: String {
 }
 
 /// Log info message with timestamp
-public func logInfo(_ message: String) {
+func logInfo(_ message: String) {
     logger.info("[\(logTimestamp)] \(message)")
 }
 
 /// Log error message with timestamp
-public func logError(_ message: String) {
+func logError(_ message: String) {
     logger.error("[\(logTimestamp)] \(message)")
 }

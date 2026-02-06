@@ -142,7 +142,7 @@ struct ContentView: View {
             isLoading = false
             
             if let selectedTextFrame = try? AXManager.shared.getSelectedTextFrame() {
-                logInfo("Selected text frame: \(selectedTextFrame.rectValue)" )
+                print("Selected text frame: \(selectedTextFrame.rectValue)" )
             }
         }
     }
