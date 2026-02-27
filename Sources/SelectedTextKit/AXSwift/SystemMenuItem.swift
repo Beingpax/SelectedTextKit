@@ -8,14 +8,53 @@
 import Foundation
 
 /// System menu item identifiers and related functionality
-public enum SystemMenuItem: String, CaseIterable {
-    // System menu item identifiers, also known as action selectors
+public enum SystemMenuItem: CaseIterable, RawRepresentable {
+    public typealias RawValue = String
 
-    case copy = "copy:"
-    case paste = "paste:"
-    case cut = "cut:"
-    case undo = "undo:"
-    case selectAll = "selectAll:"
+    // Built-in system menu item identifiers, also known as action selectors
+    case copy
+    case paste
+    case cut
+    case undo
+    case selectAll
+
+    // Custom menu item type
+    case custom(identifier: String, shortcutChar: String? = nil, localizedTitles: Set<String> = [])
+
+    /// All built-in system menu item types
+    public static var allCases: [SystemMenuItem] {
+        [.copy, .paste, .cut, .undo, .selectAll]
+    }
+
+    /// Initialize from built-in identifier
+    public init?(rawValue: String) {
+        switch rawValue {
+        case "copy:":
+            self = .copy
+        case "paste:":
+            self = .paste
+        case "cut:":
+            self = .cut
+        case "undo:":
+            self = .undo
+        case "selectAll:":
+            self = .selectAll
+        default:
+            return nil
+        }
+    }
+
+    /// Menu item identifier (action selector)
+    public var rawValue: String {
+        switch self {
+        case .copy: return "copy:"
+        case .paste: return "paste:"
+        case .cut: return "cut:"
+        case .undo: return "undo:"
+        case .selectAll: return "selectAll:"
+        case .custom(let identifier, _, _): return identifier
+        }
+    }
 
     /// Expected keyboard shortcut character for this menu item
     public var shortcutChar: String? {
@@ -25,6 +64,7 @@ public enum SystemMenuItem: String, CaseIterable {
         case .cut: return "X"
         case .undo: return "Z"
         case .selectAll: return "A"
+        case .custom(_, let shortcutChar, _): return shortcutChar
         }
     }
 
@@ -41,6 +81,8 @@ public enum SystemMenuItem: String, CaseIterable {
             return Self.undoTitles
         case .selectAll:
             return Self.selectAllTitles
+        case .custom(_, _, let localizedTitles):
+            return localizedTitles
         }
     }
 
