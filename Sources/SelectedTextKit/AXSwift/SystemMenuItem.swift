@@ -14,6 +14,7 @@ public enum SystemMenuItem: String, CaseIterable {
     case copy = "copy:"
     case paste = "paste:"
     case cut = "cut:"
+    case undo = "undo:"
     case selectAll = "selectAll:"
 
     /// Expected keyboard shortcut character for this menu item
@@ -22,6 +23,7 @@ public enum SystemMenuItem: String, CaseIterable {
         case .copy: return "C"
         case .paste: return "V"
         case .cut: return "X"
+        case .undo: return "Z"
         case .selectAll: return "A"
         }
     }
@@ -35,6 +37,8 @@ public enum SystemMenuItem: String, CaseIterable {
             return Self.pasteTitles
         case .cut:
             return Self.cutTitles
+        case .undo:
+            return Self.undoTitles
         case .selectAll:
             return Self.selectAllTitles
         }
@@ -159,6 +163,43 @@ extension SystemMenuItem {
         "גזור",  // Hebrew
         "قص",  // Arabic
         "برش",  // Persian
+    ]
+
+    /// Menu bar undo titles set, include most of the languages
+    private static let undoTitles: Set<String> = [
+        "Undo",  // English
+        "撤销", "还原",  // Simplified Chinese
+        "撤銷", "復原",  // Traditional Chinese
+        "取り消す", "元に戻す",  // Japanese
+        "실행 취소",  // Korean
+        "Annuler",  // French
+        "Deshacer", "Desfazer",  // Spanish, Portuguese
+        "Annulla",  // Italian
+        "Rückgängig",  // German
+        "Отменить",  // Russian
+        "Ongedaan maken",  // Dutch
+        "Fortryd",  // Danish
+        "Ångra",  // Swedish
+        "Kumoa",  // Finnish
+        "Αναίρεση",  // Greek
+        "Geri Al",  // Turkish
+        "Urungkan",  // Indonesian
+        "Hoàn tác",  // Vietnamese
+        "เลิกทำ",  // Thai
+        "Скасувати",  // Ukrainian
+        "Cofnij",  // Polish
+        "Visszavonás",  // Hungarian
+        "Zpět",  // Czech
+        "Späť",  // Slovak
+        "Poništi",  // Croatian, Serbian (Latin)
+        "Поништи",  // Serbian (Cyrillic)
+        "Отмяна",  // Bulgarian
+        "Atsaukt",  // Latvian
+        "Anuliuoti",  // Lithuanian
+        "Anulează",  // Romanian
+        "בטל",  // Hebrew
+        "تراجع",  // Arabic
+        "واگردانی",  // Persian
     ]
 
     /// Menu bar select all titles set, include most of the languages
