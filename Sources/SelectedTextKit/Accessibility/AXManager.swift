@@ -34,7 +34,7 @@ public final class AXManager: NSObject {
             throw AXError.noValue
         }
 
-        logInfo("Selected text via AX: \(selectedText)")
+        logInfo("Selected text via AX: \(truncatedTextForLog(selectedText))")
         return selectedText
     }
 }

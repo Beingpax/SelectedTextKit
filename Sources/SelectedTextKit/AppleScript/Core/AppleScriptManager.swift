@@ -69,7 +69,8 @@ public final class AppleScriptManager {
             let result = try await runAppleScript(scriptInfo.script, timeout: scriptInfo.timeout)
 
             // Log execution with script name
-            logInfo("Executed script '\(scriptInfo.name)': \(result ?? "no output")")
+            let resultDescription = result.map { truncatedTextForLog($0) } ?? "no output"
+            logInfo("Executed script '\(scriptInfo.name)': \(resultDescription)")
 
             return result
         } catch {

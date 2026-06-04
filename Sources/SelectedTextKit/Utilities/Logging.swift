@@ -26,6 +26,25 @@ public var logTimestamp: String {
     return String(format: "%@.%06d", dateString, microseconds)
 }
 
+/// Truncate user text for logs while preserving enough context for debugging.
+func truncatedTextForLog(
+    _ text: String,
+    leadingWordCount: Int = 10,
+    trailingWordCount: Int = 10
+) -> String {
+    let words = text.split(whereSeparator: { $0.isWhitespace })
+    let maximumWordCount = leadingWordCount + trailingWordCount
+
+    guard words.count > maximumWordCount else {
+        return text
+    }
+
+    let leadingWords = words.prefix(leadingWordCount).joined(separator: " ")
+    let trailingWords = words.suffix(trailingWordCount).joined(separator: " ")
+
+    return "\(leadingWords) … \(trailingWords)"
+}
+
 /// Log info message with timestamp
 func logInfo(_ message: String) {
     logger.info("[\(logTimestamp)] \(message)")

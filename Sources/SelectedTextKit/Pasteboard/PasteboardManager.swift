@@ -59,7 +59,7 @@ public final class PasteboardManager: NSObject {
                     // !!!: The pasteboard content may be nil or other strange content(such as old content) if the pasteboard is changing by other applications in the same time, like PopClip.
                     newContent = pasteboard.string
                     if let newContent, !newContent.isEmpty {
-                        logInfo("New Pasteboard content: \(newContent)")
+                        logInfo("New Pasteboard content: \(truncatedTextForLog(newContent))")
                         return true
                     }
 
@@ -170,7 +170,7 @@ public final class PasteboardManager: NSObject {
         switch type {
         case .keyboardShortcut:
             KeySender.paste()
-            logInfo("Pasted text via keyboard shortcut: \(content)")
+            logInfo("Pasted text via keyboard shortcut: \(truncatedTextForLog(content))")
             return true
 
         case .menuAction:
@@ -178,7 +178,7 @@ public final class PasteboardManager: NSObject {
                 let axManager = AXManager.shared
                 let pasteItem = try axManager.findEnabledMenuItem(.paste)
                 try pasteItem.performAction(kAXPressAction)
-                logInfo("Pasted text via menu action: \(content)")
+                logInfo("Pasted text via menu action: \(truncatedTextForLog(content))")
                 return true
             } catch {
                 logError("Failed to paste via menu action: \(error)")
