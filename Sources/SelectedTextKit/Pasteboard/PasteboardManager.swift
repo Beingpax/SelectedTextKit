@@ -15,6 +15,16 @@ public final class PasteboardManager: NSObject {
 
     @objc
     public static let shared = PasteboardManager()
+    
+    /// Polling timeout profile used when waiting for pasteboard updates after copy-like actions.
+    /// Most applications usually return success/failure within ~0.1s.
+    /// Safari is an observed outlier and often needs more time before pasteboard content stabilizes.
+    private enum PollingTimeout {
+        static let `default`: TimeInterval = 0.2
+        static let safari: TimeInterval = 0.4
+    }
+    
+    private let safariBundleID = "com.apple.Safari"
 
     /// Get selected text after performing an action that triggers a pasteboard change
     ///
@@ -53,7 +63,7 @@ public final class PasteboardManager: NSObject {
                 return
             }
 
-            await pollTask {
+            await pollTask({
                 // Check if the pasteboard content has changed
                 if pasteboard.changeCount != initialChangeCount {
                     // !!!: The pasteboard content may be nil or other strange content(such as old content) if the pasteboard is changing by other applications in the same time, like PopClip.
@@ -67,7 +77,7 @@ public final class PasteboardManager: NSObject {
                     return false
                 }
                 return false
-            }
+            }, timeout: currentPollingTimeout())
         }
 
         if restoreOriginal {
@@ -200,7 +210,7 @@ public final class PasteboardManager: NSObject {
     public func pollTask(
         _ task: @escaping () async -> Bool,
         every interval: TimeInterval = 0.005,
-        timeout: TimeInterval = 0.4
+        timeout: TimeInterval = 0.2
     ) async -> Bool {
         let startTime = Date()
         while Date().timeIntervalSince(startTime) < timeout {
@@ -213,6 +223,14 @@ public final class PasteboardManager: NSObject {
         }
         logInfo("pollTask timeout: \(timeout) seconds")
         return false
+    }
+    
+    private func currentPollingTimeout() -> TimeInterval {
+        let frontmostBundleID = NSWorkspace.shared.frontmostApplication?.bundleIdentifier
+        // Use a longer timeout only for Safari.
+        // In local testing, Safari's selected-text copy path can be noticeably delayed,
+        // while normal apps typically resolve (success or failure) much faster.
+        return frontmostBundleID == safariBundleID ? PollingTimeout.safari : PollingTimeout.default
     }
 
 }
