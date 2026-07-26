@@ -1,13 +1,13 @@
 {
-  "originHash" : "5970f18acb12ef6ea856844856af59b9f2119168fc36402958d6f0f7e187cf1c",
+  "originHash" : "d57a653755be924398e5564c175aeb83f3742f30c22f56f7f34aa2ced792c179",
   "pins" : [
     {
       "identity" : "axswift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tisfeng/AXSwift.git",
       "state" : {
-        "revision" : "2efa201fa18184de98674165592fd1ecb0c00a6d",
-        "version" : "0.3.6"
+        "revision" : "d737b605c99f6e0f6a21448d0836110bd15b7710",
+        "version" : "0.3.7"
       }
     },
     {
