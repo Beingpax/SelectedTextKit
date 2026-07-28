@@ -19,6 +19,27 @@ extension AXManager {
         return try findMenuItem(menuItem, requireEnabled: true)
     }
 
+    /// Find an enabled menu item in a specific application.
+    ///
+    /// Passing a process identifier lets callers capture the target application on the main actor,
+    /// then perform synchronous accessibility IPC from a background executor.
+    public func findEnabledMenuItem(
+        _ menuItem: SystemMenuItem,
+        processIdentifier: pid_t
+    ) throws -> UIElement {
+        guard processIdentifier > 0 else {
+            throw AXError.invalidUIElement
+        }
+
+        let appElement = Application(AXUIElementCreateApplication(processIdentifier))
+        return try findMenuItem(
+            menuItem,
+            in: appElement,
+            applicationDescription: "pid \(processIdentifier)",
+            requireEnabled: true
+        )
+    }
+
     /// Find a specific menu item in the frontmost application
     ///
     /// - Parameters:
@@ -28,17 +49,32 @@ extension AXManager {
     public func findMenuItem(_ menuItem: SystemMenuItem, requireEnabled: Bool = false) throws
         -> UIElement
     {
+        guard let appElement = frontmostAppElement else {
+            throw AXError.invalidUIElement
+        }
+
+        return try findMenuItem(
+            menuItem,
+            in: appElement,
+            applicationDescription: frontmostAppBundleID,
+            requireEnabled: requireEnabled
+        )
+    }
+
+    private func findMenuItem(
+        _ menuItem: SystemMenuItem,
+        in appElement: UIElement,
+        applicationDescription: String,
+        requireEnabled: Bool
+    ) throws -> UIElement {
         guard checkIsProcessTrusted(prompt: true) else {
             logError("Process is not trusted for accessibility")
             throw AXError.apiDisabled
         }
 
-        logInfo("Checking \(menuItem) item in frontmost app: \(frontmostAppBundleID)")
+        logInfo("Checking \(menuItem) item in application: \(applicationDescription)")
 
-        // Cannot replace appElement with systemWideElement
-        // because menu items are children of the application element
-        guard let appElement = frontmostAppElement,
-              let foundMenuItem = try appElement.findMenuItem(menuItem) else {
+        guard let foundMenuItem = try appElement.findMenuItem(menuItem) else {
             throw AXError.noMenuItem
         }
 

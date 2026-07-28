@@ -35,6 +35,14 @@ public final class PasteboardManager: NSObject {
         await fetchPasteboardText(afterPerform: action)
     }
 
+    /// Get selected text while allowing the trigger action to run on another executor.
+    @MainActor
+    public func getSelectedText(
+        afterPerformAsync action: @escaping () async throws -> Void
+    ) async -> String? {
+        await fetchPasteboardText(afterPerformAsync: action)
+    }
+
     /// Get the next pasteboard content after executing an action
     ///
     /// - Parameters:
@@ -48,6 +56,21 @@ public final class PasteboardManager: NSObject {
         restoreInterval: TimeInterval = 0.0,
         afterPerform action: @escaping () throws -> Void
     ) async -> String? {
+        await fetchPasteboardText(
+            restoreOriginal: restoreOriginal,
+            restoreInterval: restoreInterval,
+            afterPerformAsync: {
+                try action()
+            }
+        )
+    }
+
+    @MainActor
+    private func fetchPasteboardText(
+        restoreOriginal: Bool = true,
+        restoreInterval: TimeInterval = 0.0,
+        afterPerformAsync action: @escaping () async throws -> Void
+    ) async -> String? {
         logInfo("Getting next pasteboard content")
 
         let pasteboard = NSPasteboard.general
@@ -57,7 +80,7 @@ public final class PasteboardManager: NSObject {
         let executeAction = { [self] in
             do {
                 logInfo("Executing trigger action")
-                try action()
+                try await action()
             } catch {
                 logError("Failed to execute trigger action: \(error)")
                 return

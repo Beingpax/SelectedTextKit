@@ -10,6 +10,27 @@ import AXSwift
 import AppKit
 import KeySender
 
+private actor MenuActionExecutor {
+    func performCopy(in processIdentifier: pid_t) throws {
+        let startedAt = CFAbsoluteTimeGetCurrent()
+        logInfo(
+            "Menu action worker started: pid=\(processIdentifier), mainThread=\(Thread.isMainThread)"
+        )
+        defer {
+            let elapsedMilliseconds = (CFAbsoluteTimeGetCurrent() - startedAt) * 1_000
+            logInfo(
+                "Menu action worker finished: pid=\(processIdentifier), durationMs=\(String(format: "%.1f", elapsedMilliseconds)), mainThread=\(Thread.isMainThread)"
+            )
+        }
+
+        let copyItem = try AXManager.shared.findEnabledMenuItem(
+            .copy,
+            processIdentifier: processIdentifier
+        )
+        try copyItem.performAction(.press)
+    }
+}
+
 /// Main manager class for getting selected text from applications
 @objc(STKSelectedTextManager)
 public final class SelectedTextManager: NSObject {
@@ -20,6 +41,7 @@ public final class SelectedTextManager: NSObject {
     private let axManager = AXManager.shared
     private let pasteboardManager = PasteboardManager.shared
     private let appleScriptManager = AppleScriptManager.shared
+    private let menuActionExecutor = MenuActionExecutor()
 
     /// Get selected text from current focused application using specified strategy
     ///
@@ -156,15 +178,18 @@ public final class SelectedTextManager: NSObject {
     /// Get selected text by menu bar action copy
     ///
     /// - Returns: Selected text or nil if failed
-    @MainActor
     private func getSelectedTextByMenuAction() async throws -> String? {
         logInfo("Getting selected text by menu bar action copy")
 
-        let copyItem = try axManager.findEnabledMenuItem(.copy)
-
-        return await pasteboardManager.getSelectedText {
-            try copyItem.performAction(.press)
+        guard let processIdentifier = await MainActor.run(body: {
+            NSWorkspace.shared.frontmostApplication?.processIdentifier
+        }) else {
+            throw AXError.invalidUIElement
         }
+
+        return await pasteboardManager.getSelectedText(afterPerformAsync: {
+            try await self.menuActionExecutor.performCopy(in: processIdentifier)
+        })
     }
 
     /// Get selected text by shortcut copy (Cmd+C)
